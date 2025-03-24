@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random Role Generator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f7f6;
+        color: #333;
+      }
+      h2 {
+        text-align: center;
+        font-size: 2em;
+        margin-bottom: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        margin: 10px auto;
+        display: block;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .student-list {
+        margin-bottom: 20px;
+      }
+      .student-list label {
+        font-weight: bold;
+      }
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        margin-bottom: 15px;
+      }
+      .role-container {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        flex: 1;
+        max-width: 45%;
+      }
+      .role-container h3 {
+        font-size: 18px;
+        margin: 0 0 10px;
+        color: #4caf50;
+      }
+      ol {
+        list-style-position: inside;
+        padding-left: 0;
+      }
+      li {
+        margin: 5px 0;
+        background-color: #f9f9f9;
+        padding: 8px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease;
+      }
+      li:hover {
+        background-color: #e2e2e2;
+      }
+      .role-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: space-between;
+      }
+      .role-wrapper .role-container:nth-child(even) {
+        margin-right: 0;
+      }
+      .input-section {
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .input-section label {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: inline-block;
+      }
+      .input-section input {
+        padding: 8px;
+        font-size: 16px;
+        width: 60px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .input-section input[type="number"]:focus {
+        outline-color: #4caf50;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Random Role Assignment</h2>
+
+    <div class="student-list">
+      <strong>List of Students:</strong>
+      <textarea id="studentsInput" rows="5"></textarea>
+    </div>
+
+    <div class="input-section">
+      <h3>Number of Assignees per Role:</h3>
+      <label for="chickenCount">Chickens:</label>
+      <input type="number" id="chickenCount" value="7" min="0" /><br />
+      <label for="pigCount">Pigs:</label>
+      <input type="number" id="pigCount" value="6" min="0" /><br />
+      <label for="cowCount">Cows:</label>
+      <input type="number" id="cowCount" value="5" min="0" /><br />
+      <label for="consumerCount">Consumers:</label>
+      <input type="number" id="consumerCount" value="3" min="0" /><br />
+    </div>
+
+    <button onclick="assignRoles()">Assign Roles</button>
+
+    <h3>Assigned Roles:</h3>
+
+    <div class="role-wrapper">
+      <div class="role-container" id="chickenRoles">
+        <h3>Chickens (<span id="chickenCountDisplay">0</span>)</h3>
+        <ol id="chickenList"></ol>
+      </div>
+
+      <div class="role-container" id="pigRoles">
+        <h3>Pigs (<span id="pigCountDisplay">0</span>)</h3>
+        <ol id="pigList"></ol>
+      </div>
+
+      <div class="role-container" id="cowRoles">
+        <h3>Cows (<span id="cowCountDisplay">0</span>)</h3>
+        <ol id="cowList"></ol>
+      </div>
+
+      <div class="role-container" id="consumerRoles">
+        <h3>Consumers (<span id="consumerCountDisplay">0</span>)</h3>
+        <ol id="consumerList"></ol>
+      </div>
+    </div>
+
+    <script>
+      // Default list of students (can be modified by user)
+      const defaultStudents = [
+        "Kita Bairouti",
+        "Jian Long Ke",
+        "Nishant",
+        "Deepanshu Goyal",
+        "Sheetal",
+        "Jashanpreet Kaur",
+        "Dipanshi",
+        "Rupinder Kaur",
+        "Sharanjit Kaur",
+        "Jashandeep Singh",
+        "Karime Cortes Montemayor",
+        "Bavandeep Singh",
+        "Simranpreet Kaur",
+        "Hayden Phan",
+        "Gurleen Kaur",
+        "Karanveer Bajwa",
+        "Harmandeep Brar",
+        "Marc Go",
+        "Pallavi Kumari",
+        "Lance Cueto",
+        "Hanyu Wu",
+      ];
+
+      // Predefined roles
+      const roles = [
+        {
+          role: "Chicken",
+          containerId: "chickenList",
+          countId: "chickenCountDisplay",
+        },
+        { role: "Pig", containerId: "pigList", countId: "pigCountDisplay" },
+        { role: "Cow", containerId: "cowList", countId: "cowCountDisplay" },
+        {
+          role: "Consumer",
+          containerId: "consumerList",
+          countId: "consumerCountDisplay",
+        },
+      ];
+
+      // Function to display students in rows of 3 in the input box
+      function displayStudents() {
+        const studentsInput = document.getElementById("studentsInput");
+        const students = defaultStudents.join(", ");
+        studentsInput.value = students;
+      }
+
+      // Function to assign roles randomly to students
+      function assignRoles() {
+        // Get the student list from the input box
+        const studentsInput = document.getElementById("studentsInput").value;
+        const students = studentsInput
+          .split(",")
+          .map((student) => student.trim());
+
+        // Get number of assignees for each role from input fields
+        const chickenCount = parseInt(
+          document.getElementById("chickenCount").value
+        );
+        const pigCount = parseInt(document.getElementById("pigCount").value);
+        const cowCount = parseInt(document.getElementById("cowCount").value);
+        const consumerCount = parseInt(
+          document.getElementById("consumerCount").value
+        );
+
+        // Total number of roles
+        const totalRoles = chickenCount + pigCount + cowCount + consumerCount;
+
+        // Clear previous results
+        document.getElementById("chickenList").innerHTML = "";
+        document.getElementById("pigList").innerHTML = "";
+        document.getElementById("cowList").innerHTML = "";
+        document.getElementById("consumerList").innerHTML = "";
+
+        // Reset role count display
+        roles.forEach((roleData) => {
+          document.getElementById(roleData.countId).textContent = 0;
+        });
+
+        // Check if the total number of roles matches the number of students
+        if (totalRoles !== students.length) {
+          alert(
+            "The total number of students must equal the total number of roles."
+          );
+          return;
+        }
+
+        // Shuffle the students list to randomize assignments
+        students.sort(() => Math.random() - 0.5);
+
+        let studentIndex = 0;
+
+        // Assign students to roles
+        assignRoleToList(
+          "Chicken",
+          chickenCount,
+          students,
+          studentIndex,
+          "chickenList",
+          "chickenCountDisplay"
+        );
+        studentIndex += chickenCount;
+        assignRoleToList(
+          "Pig",
+          pigCount,
+          students,
+          studentIndex,
+          "pigList",
+          "pigCountDisplay"
+        );
+        studentIndex += pigCount;
+        assignRoleToList(
+          "Cow",
+          cowCount,
+          students,
+          studentIndex,
+          "cowList",
+          "cowCountDisplay"
+        );
+        studentIndex += cowCount;
+        assignRoleToList(
+          "Consumer",
+          consumerCount,
+          students,
+          studentIndex,
+          "consumerList",
+          "consumerCountDisplay"
+        );
+      }
+
+      // Helper function to assign a specific number of students to a role and update the list and count display
+      function assignRoleToList(
+        roleName,
+        count,
+        students,
+        studentIndex,
+        listId,
+        countId
+      ) {
+        for (let i = 0; i < count; i++) {
+          const li = document.createElement("li");
+          li.textContent = students[studentIndex];
+          document.getElementById(listId).appendChild(li);
+          studentIndex++;
+        }
+        document.getElementById(countId).textContent = count;
+      }
+
+      // Display default students list in the input box on page load
+      displayStudents();
+    </script>
+  </body>
+</html>
